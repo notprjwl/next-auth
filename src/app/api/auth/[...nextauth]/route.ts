@@ -51,10 +51,37 @@ export const authOptions: NextAuthOptions = {
           id: user.id + "",
           email: user.email,
           name: user.name,
+          randomKey: "this is a random key",
         };
       },
     }),
   ],
+  // to update session with new data
+  callbacks: {
+    session: ({ session, token }) => {
+      console.log("session callback", { session, token });
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id,
+          randomKey: token.randomKey,
+        },
+      };
+      // return session;
+    },
+    jwt: ({ token, user }) => {
+      console.log("JWT callback", { token, user });
+      if (user) {
+        return {
+          ...token,
+          id: user.id,
+          randomKey: (user as any).randomKey,
+        };
+      }
+      return token;
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);
